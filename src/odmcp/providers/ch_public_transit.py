@@ -24,6 +24,8 @@ from typing import Any, List, Optional, Sequence
 
 import httpx
 import mcp.types as types
+from mcp.server import stdio_server
+
 from pydantic import BaseModel, Field
 
 # Initialize logging
@@ -52,7 +54,7 @@ class Public_TransitParams(BaseModel):
     """Input parameters for the endpoint."""
 
     origin: str = Field(..., description="city to go from")
-    to: str = Field(None, description="destination")
+    to: str = Field(..., description="destination")
 
 
 # class Coordinates(BaseModel):
@@ -174,6 +176,20 @@ TOOLS_HANDLERS["transit_information"] = handle_transitdata
 # [Another Endpoint Name]
 ###################
 ...
+
+
+async def main():
+    from odmcp.utils import create_mcp_server
+
+    # create the server
+    server = create_mcp_server(
+        "data.sbb.ch", RESOURCES, RESOURCES_HANDLERS, TOOLS, TOOLS_HANDLERS
+    )
+
+    # run the server
+    async with stdio_server() as streams:
+        await server.run(streams[0], streams[1], server.create_initialization_options())
+
 
 # Server initialization (if module is run directly)
 if __name__ == "__main__":
