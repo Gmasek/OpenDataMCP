@@ -56,7 +56,7 @@ TOOLS_HANDLERS: dict[
 
 
 # 1. Input/Output Models
-class EndpointParams(BaseModel):
+class PersonParams(BaseModel):
     """Input parameters for the endpoint."""
 
     person_titles: Optional[List[str]] = Field(
@@ -186,7 +186,7 @@ class Organization(BaseModel):
     )
 
 
-class EndpointResult(BaseModel):
+class PersonsResult(BaseModel):
     """Single result item from the endpoint."""
 
     id: Optional[str] = Field(None, description="Unique identifier for the person")
@@ -220,22 +220,22 @@ class EndpointResult(BaseModel):
     seniority: Optional[str] = Field(None, description="Seniority level of the person")
 
 
-class EndpointResponse(BaseModel):
+class PersonsResponse(BaseModel):
     """Complete response from the endpoint."""
 
-    people: Optional[List[EndpointResult]] = Field(..., description="List of results")
+    people: Optional[List[PersonsResult]] = Field(..., description="List of results")
 
 
 # 2. Data Fetching Function
-def fetch_endpoint_data(params: EndpointParams) -> EndpointResponse:
+def fetch_persons_data(params: PersonParams) -> PersonsResponse:
     """
     Fetch data from the endpoint.
 
     Args:
-        params: EndpointParams object containing all query parameters
+        params: PersonParams object containing all query parameters
 
     Returns:
-        EndpointResponse object containing the results
+        PersonsResponse object containing the results
 
     Raises:
         httpx.HTTPError: If the API request fails
@@ -258,11 +258,11 @@ def fetch_endpoint_data(params: EndpointParams) -> EndpointResponse:
         endpoint += "?" + query_string.rstrip("&")
     response = httpx.post(endpoint, headers=headers)
     response.raise_for_status()
-    return EndpointResponse(**response.json())
+    return PersonsResponse(**response.json())
 
 
 # 3. Handler Function
-async def handle_endpoint(
+async def handle_persons(
     arguments: dict[str, Any] | None = None,
 ) -> Sequence[types.TextContent | types.ImageContent | types.EmbeddedResource]:
     """
@@ -278,7 +278,7 @@ async def handle_endpoint(
         Exception: If the handling fails
     """
     try:
-        response = fetch_endpoint_data(EndpointParams(**(arguments or {})))
+        response = fetch_persons_data(PersonParams(**(arguments or {})))
         return [types.TextContent(type="text", text=str(response))]
     except Exception as e:
         log.error(f"Error handling endpoint: {e}")
@@ -288,12 +288,12 @@ async def handle_endpoint(
 # 4. Tool Registration
 TOOLS.append(
     types.Tool(
-        name="endpoint-name",
+        name="persons-professional",
         description="Description of what this endpoint does",
-        inputSchema=EndpointParams.model_json_schema(),
+        inputSchema=PersonParams.model_json_schema(),
     )
 )
-TOOLS_HANDLERS["endpoint-name"] = handle_endpoint
+TOOLS_HANDLERS["persons-professional"] = handle_persons
 
 
 ###################
@@ -311,8 +311,8 @@ if __name__ == "__main__":
     #    run_server, "service.name", RESOURCES, RESOURCES_HANDLERS, TOOLS, TOOLS_HANDLERS
     # )
     print(
-        fetch_endpoint_data(
-            EndpointParams(
+        fetch_persons_data(
+            PersonParams(
                 person_titles=["software engineer", "marketing manager"],
                 person_locations=["california", "ireland"],
                 person_seniorities=["senior"],
