@@ -9,7 +9,7 @@ from mcp.client.stdio import stdio_client
 
 log = logging.getLogger(__name__)
 
-PROVIDER = "ch_sbb"
+PROVIDER = "ch_public_transit"
 
 # Create server parameters for stdio connection
 server_params = StdioServerParameters(
@@ -32,9 +32,9 @@ async def main():
             # # List available prompts
             # prompts = await session.list_prompts()
 
-            # # List available tools
-            # tools = await session.list_tools()
-
+            # List available tools
+            tools = await session.list_tools()
+            print(tools)
             # # Read a resource
             # resource = await session.read_resource("file://some/path")
 

@@ -183,7 +183,7 @@ async def main():
 
     # create the server
     server = create_mcp_server(
-        "data.sbb.ch", RESOURCES, RESOURCES_HANDLERS, TOOLS, TOOLS_HANDLERS
+        "data.public.transit.ch", RESOURCES, RESOURCES_HANDLERS, TOOLS, TOOLS_HANDLERS
     )
 
     # run the server
