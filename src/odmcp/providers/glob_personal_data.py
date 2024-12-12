@@ -25,6 +25,7 @@ from typing import Any, List, Optional, Sequence
 import httpx
 import mcp.types as types
 from pydantic import BaseModel, Field
+from mcp.server import stdio_server
 from dotenv import load_dotenv
 import os
 
@@ -296,10 +297,18 @@ TOOLS.append(
 TOOLS_HANDLERS["persons-professional"] = handle_persons
 
 
-###################
-# [Another Endpoint Name]
-###################
-...
+async def main():
+    from odmcp.utils import create_mcp_server
+
+    # create the server
+    server = create_mcp_server(
+        "data.glob.persons", RESOURCES, RESOURCES_HANDLERS, TOOLS, TOOLS_HANDLERS
+    )
+
+    # run the server
+    async with stdio_server() as streams:
+        await server.run(streams[0], streams[1], server.create_initialization_options())
+
 
 # Server initialization (if module is run directly)
 if __name__ == "__main__":
